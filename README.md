@@ -1,5 +1,8 @@
 # uff-lang
 
+To add new proposals, open a new issue, describe what and why we should change. 
+Add an example as well as explain the use case to archive.
+
 ## Grammar
 
 ```ebnf
@@ -14,15 +17,15 @@ digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 .
 - `should be`
 
 ### Comments [Proposal]
-`'`: Block comment
-`"`: Line comment
+- `'`: Block comment
+- `"`: Line comment
 
 ### Datatypes
 #### Strings
 Strings have to begin with `<<` and end with `>>`. The use of `>>` in the string is not possible.
 
 #### complex128
-2x `float64`, imag + real
+2x `float64`, split up in imaginary and real part.
 
 #### float64
 
@@ -31,9 +34,10 @@ Strings have to begin with `<<` and end with `>>`. The use of `>>` in the string
 #### bigint
 
 #### array[generic]
-Access: `b@2` or `b@-2`
+- Access: `b@2` or `b@-2` -- Not so sure about this syntax
 
 #### struct
+This may be a valid struct in `uff`. This is also subject to be discussed.
 ```uff
 bla struct {
     " This is a line comment
