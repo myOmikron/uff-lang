@@ -2,7 +2,7 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 
 pub static RE_LINE_COMMENT: Lazy<Regex> = Lazy::new(|| Regex::new(r#""(.*)"#).unwrap());
-pub static RE_STRING: Lazy<Regex> = Lazy::new(|| Regex::new(r#"(<<.*?>>)"#).unwrap());
+pub static RE_STRING: Lazy<Regex> = Lazy::new(|| Regex::new(r#"<<(.*?)>>"#).unwrap());
 pub static RE_ASSIGN: Lazy<Regex> = Lazy::new(|| Regex::new(r#"(should\s+be)"#).unwrap());
 pub static RE_SAY: Lazy<Regex> = Lazy::new(|| Regex::new(r#"(say)"#).unwrap());
 pub static RE_INTEGER: Lazy<Regex> =

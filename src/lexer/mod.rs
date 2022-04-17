@@ -84,8 +84,8 @@ fn append_match(
 ) {
     if check_start_end(
         line,
-        &cap.get(1).unwrap().start(),
-        &cap.get(1).unwrap().end(),
+        &cap.get(0).unwrap().start(),
+        &cap.get(0).unwrap().end(),
     ) {
         if !check_if_in_bounds(
             &cap.get(0).unwrap().start(),
@@ -94,7 +94,6 @@ fn append_match(
             if t == Token::COMMENT { true } else { false },
         ) {
             vec.push(Tokenized {
-                token: t,
                 token: t,
                 value: split_range(
                     &cap.get(1).unwrap().start(),
