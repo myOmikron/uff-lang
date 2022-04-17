@@ -1,0 +1,13 @@
+[package]
+name = "uff"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# External
+clap = { version = "3.1.8", features = ["derive"] }
+inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "master", features = ["llvm13-0"] }
+regex = "1"
+once_cell = "1.10.0"
