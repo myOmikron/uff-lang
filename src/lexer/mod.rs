@@ -95,6 +95,7 @@ fn append_match(
         ) {
             vec.push(Tokenized {
                 token: t,
+                token: t,
                 value: split_range(
                     &cap.get(1).unwrap().start(),
                     &cap.get(1).unwrap().end(),
