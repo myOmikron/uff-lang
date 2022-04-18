@@ -15,6 +15,7 @@ pub enum Token {
     STRING,
     COMMENT,
     SAY,
+    UNKNOWN,
 }
 
 #[derive(Debug)]
@@ -236,6 +237,41 @@ pub fn lex(path: &str) -> HashMap<usize, Vec<Tokenized>> {
             );
         }
 
+        line_tokenized.sort_by(|x, y| x.start.cmp(&y.start));
+
+        // unknown
+        let mut last: usize = 0;
+        let mut unknown: Vec<Tokenized> = Vec::new();
+        for token in &line_tokenized {
+            let value = &line[last..token.start - 1];
+            if value != "" && !reg::RE_WHITESPACE.is_match(&value) {
+                unknown.push(Tokenized {
+                    line: e.0 + 1,
+                    start: last,
+                    stop: token.start,
+                    token: Token::UNKNOWN,
+                    value: String::from(value.trim()),
+                });
+            }
+            last = token.stop - 1;
+        }
+
+        // If either no other Tokens are found or there's something unknown at the end
+        // execute UNKNOWN match one more time
+        if last < line.len() - 1 {
+            let value = &line[last..line.len()];
+            if !reg::RE_WHITESPACE.is_match(&value) {
+                unknown.push(Tokenized {
+                    line: e.0 + 1,
+                    start: last,
+                    stop: line.len(),
+                    token: Token::UNKNOWN,
+                    value: String::from(value.trim()),
+                });
+            }
+        }
+
+        line_tokenized.append(&mut unknown);
         line_tokenized.sort_by(|x, y| x.start.cmp(&y.start));
 
         tokenized.insert(e.0, line_tokenized);

@@ -19,4 +19,5 @@ pub(crate) static RE_IDENT: Lazy<Regex> = Lazy::new(|| {
     ).unwrap()
 });
 pub(crate) static RE_DELIM_FRONT: Lazy<Regex> = Lazy::new(|| Regex::new(r#"[\s"]$"#).unwrap());
-pub(crate) static RE_DELIM_BACK: Lazy<Regex> = Lazy::new(|| Regex::new(r#"^\s"#).unwrap());
+pub(crate) static RE_DELIM_BACK: Lazy<Regex> = Lazy::new(|| Regex::new(r#"^[\s"]"#).unwrap());
+pub(crate) static RE_WHITESPACE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"^\s+$"#).unwrap());
