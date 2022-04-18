@@ -21,7 +21,8 @@ pub enum Token {
 #[derive(Debug)]
 pub struct Tokenized {
     line: usize,
-    column: usize,
+    start: usize,
+    stop: usize,
     token: Token,
     value: String,
 }
@@ -30,8 +31,8 @@ impl Display for Tokenized {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{}: {}: {:?} {}",
-            self.line, self.column, self.token, self.value
+            "{}: {}:{} - {:?} {}",
+            self.line, self.start, self.stop, self.token, self.value
         )
     }
 }
@@ -101,7 +102,8 @@ fn append_match(
                     line,
                 ),
                 line: *e + 1,
-                column: cap.get(0).unwrap().start() + 1,
+                start: cap.get(0).unwrap().start() + 1,
+                stop: cap.get(0).unwrap().end() + 1,
             });
             if t != Token::COMMENT {
                 boundaries.push((cap.get(0).unwrap().start(), cap.get(0).unwrap().end()));
@@ -112,8 +114,8 @@ fn append_match(
     }
 }
 
-pub fn lex(file: &str) -> Vec<Tokenized> {
-    let f = File::open(file).unwrap();
+pub fn lex(path: &str) -> Vec<Tokenized> {
+    let f = File::open(path).unwrap();
     let reader = BufReader::new(f);
 
     let mut tokenized: Vec<Tokenized> = Vec::new();
@@ -146,7 +148,7 @@ pub fn lex(file: &str) -> Vec<Tokenized> {
             for i in 0..tokenized.len() {
                 if tokenized[i].line == e.0 + 1
                     && tokenized[i].token == Token::STRING
-                    && tokenized[i].column >= capture.get(0).unwrap().start() + 1
+                    && tokenized[i].start >= capture.get(0).unwrap().start() + 1
                 {
                     rem_indices_tok.push(i);
                 }
@@ -237,7 +239,8 @@ pub fn lex(file: &str) -> Vec<Tokenized> {
         tokenized.push(Tokenized {
             token: Token::EOL,
             line: e.0 + 1,
-            column: line.len(),
+            start: line.len(),
+            stop: line.len() + 1,
             value: "".parse().unwrap(),
         })
     }
@@ -247,7 +250,8 @@ pub fn lex(file: &str) -> Vec<Tokenized> {
         tokenized.push(Tokenized {
             token: Token::EOF,
             line: tokenized[tokenized.len() - 1].line,
-            column: tokenized[tokenized.len() - 1].column,
+            start: tokenized[tokenized.len() - 1].start,
+            stop: tokenized[tokenized.len() - 1].stop,
             value: "".parse().unwrap(),
         });
         tokenized.swap_remove(tokenized.len() - 2);
