@@ -1,5 +1,6 @@
 use std::path::Path;
 
+mod ast;
 mod lexer;
 
 fn check_file_existence(path: &str) -> bool {
@@ -21,8 +22,12 @@ pub fn run_compiler(path: &str, out_dir: &str, emit_lexer: bool) {
     }
     let tokenized = lexer::lex(path);
     if emit_lexer {
-        for token in tokenized {
-            println!("{}", token)
+        for i in 0..tokenized.len() {
+            print!("{}", i + 1);
+            for t in &tokenized[&i] {
+                print!(" :: {:?} {}", t.token, t.value)
+            }
+            println!()
         }
     }
 }

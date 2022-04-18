@@ -1,4 +1,5 @@
 use regex::Captures;
+use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -7,9 +8,7 @@ mod reg;
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum Token {
-    EOF = 0,
-    EOL,
-    ASSIGN,
+    ASSIGN = 0,
     IDENT,
     INTEGER,
     FLOAT,
@@ -20,11 +19,11 @@ pub enum Token {
 
 #[derive(Debug)]
 pub struct Tokenized {
-    line: usize,
-    start: usize,
-    stop: usize,
-    token: Token,
-    value: String,
+    pub line: usize,
+    pub start: usize,
+    pub stop: usize,
+    pub token: Token,
+    pub value: String,
 }
 
 impl Display for Tokenized {
@@ -87,12 +86,13 @@ fn append_match(
         line,
         &cap.get(0).unwrap().start(),
         &cap.get(0).unwrap().end(),
-    ) {
+    ) || t == Token::COMMENT
+    {
         if !check_if_in_bounds(
             &cap.get(0).unwrap().start(),
             &cap.get(0).unwrap().end(),
             &boundaries,
-            if t == Token::COMMENT { true } else { false },
+            t == Token::COMMENT,
         ) {
             vec.push(Tokenized {
                 token: t,
@@ -114,16 +114,17 @@ fn append_match(
     }
 }
 
-pub fn lex(path: &str) -> Vec<Tokenized> {
+pub fn lex(path: &str) -> HashMap<usize, Vec<Tokenized>> {
     let f = File::open(path).unwrap();
     let reader = BufReader::new(f);
 
-    let mut tokenized: Vec<Tokenized> = Vec::new();
+    let mut tokenized: HashMap<usize, Vec<Tokenized>> = HashMap::new();
     let mut boundaries: Vec<(usize, usize)> = Vec::new();
     let mut rem_indices_tok: Vec<usize> = Vec::new();
     let mut line: String;
 
     for e in reader.lines().enumerate() {
+        let mut line_tokenized: Vec<Tokenized> = Vec::new();
         boundaries.clear();
 
         line = e.1.unwrap();
@@ -132,7 +133,7 @@ pub fn lex(path: &str) -> Vec<Tokenized> {
         let string_captures = reg::RE_STRING.captures_iter(&line);
         for cap in string_captures {
             append_match(
-                &mut tokenized,
+                &mut line_tokenized,
                 &cap,
                 Token::STRING,
                 &line,
@@ -145,10 +146,10 @@ pub fn lex(path: &str) -> Vec<Tokenized> {
         rem_indices_tok.clear();
         let comment_captures = reg::RE_LINE_COMMENT.captures_iter(&line);
         for capture in comment_captures {
-            for i in 0..tokenized.len() {
-                if tokenized[i].line == e.0 + 1
-                    && tokenized[i].token == Token::STRING
-                    && tokenized[i].start >= capture.get(0).unwrap().start() + 1
+            for i in 0..line_tokenized.len() {
+                if line_tokenized[i].line == e.0 + 1
+                    && line_tokenized[i].token == Token::STRING
+                    && line_tokenized[i].start >= capture.get(0).unwrap().start() + 1
                 {
                     rem_indices_tok.push(i);
                 }
@@ -157,11 +158,11 @@ pub fn lex(path: &str) -> Vec<Tokenized> {
             rem_indices_tok.sort_by(|x, y| y.partial_cmp(x).unwrap());
 
             for i in &rem_indices_tok {
-                tokenized.remove(*i);
+                line_tokenized.remove(*i);
             }
 
             append_match(
-                &mut tokenized,
+                &mut line_tokenized,
                 &capture,
                 Token::COMMENT,
                 &line,
@@ -174,7 +175,7 @@ pub fn lex(path: &str) -> Vec<Tokenized> {
         let decimal_float_captures = reg::RE_DECIMAL_FLOAT.captures_iter(&line);
         for capture in decimal_float_captures {
             append_match(
-                &mut tokenized,
+                &mut line_tokenized,
                 &capture,
                 Token::FLOAT,
                 &line,
@@ -187,7 +188,7 @@ pub fn lex(path: &str) -> Vec<Tokenized> {
         let integer_captures = reg::RE_INTEGER.captures_iter(&line);
         for capture in integer_captures {
             append_match(
-                &mut tokenized,
+                &mut line_tokenized,
                 &capture,
                 Token::INTEGER,
                 &line,
@@ -200,7 +201,7 @@ pub fn lex(path: &str) -> Vec<Tokenized> {
         let assign_captures = reg::RE_ASSIGN.captures_iter(&line);
         for capture in assign_captures {
             append_match(
-                &mut tokenized,
+                &mut line_tokenized,
                 &capture,
                 Token::ASSIGN,
                 &line,
@@ -213,7 +214,7 @@ pub fn lex(path: &str) -> Vec<Tokenized> {
         let say_captures = reg::RE_SAY.captures_iter(&line);
         for capture in say_captures {
             append_match(
-                &mut tokenized,
+                &mut line_tokenized,
                 &capture,
                 Token::SAY,
                 &line,
@@ -226,7 +227,7 @@ pub fn lex(path: &str) -> Vec<Tokenized> {
         let ident_captures = reg::RE_IDENT.captures_iter(&line);
         for capture in ident_captures {
             append_match(
-                &mut tokenized,
+                &mut line_tokenized,
                 &capture,
                 Token::IDENT,
                 &line,
@@ -235,26 +236,9 @@ pub fn lex(path: &str) -> Vec<Tokenized> {
             );
         }
 
-        // push EOL
-        tokenized.push(Tokenized {
-            token: Token::EOL,
-            line: e.0 + 1,
-            start: line.len(),
-            stop: line.len() + 1,
-            value: "".parse().unwrap(),
-        })
-    }
+        line_tokenized.sort_by(|x, y| x.start.cmp(&y.start));
 
-    // swap last EOL with EOF
-    if tokenized.len() > 0 {
-        tokenized.push(Tokenized {
-            token: Token::EOF,
-            line: tokenized[tokenized.len() - 1].line,
-            start: tokenized[tokenized.len() - 1].start,
-            stop: tokenized[tokenized.len() - 1].stop,
-            value: "".parse().unwrap(),
-        });
-        tokenized.swap_remove(tokenized.len() - 2);
+        tokenized.insert(e.0, line_tokenized);
     }
 
     return tokenized;
