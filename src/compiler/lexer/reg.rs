@@ -15,7 +15,7 @@ pub(crate) static RE_DECIMAL_FLOAT: Lazy<Regex> = Lazy::new(|| {
 });
 pub(crate) static RE_IDENT: Lazy<Regex> = Lazy::new(|| {
     Regex::new(
-        r#"([_\p{Sm}\p{Sk}\p{So}\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Lo}][_\p{Sm}\p{Sk}\p{So}\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Lo}\p{Nd}]*)"#,
+        r#"([_\p{Sm}\p{Sk}\p{CurrencySymbol}\p{So}\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Lo}][_\p{Sm}\p{CurrencySymbol}\p{Sk}\p{So}\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Lo}\p{Nd}]*)"#,
     ).unwrap()
 });
 pub(crate) static RE_DELIM_FRONT: Lazy<Regex> = Lazy::new(|| Regex::new(r#"[\s"]$"#).unwrap());
