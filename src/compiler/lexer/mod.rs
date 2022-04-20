@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::path::Path;
 
 mod reg;
 
@@ -116,7 +117,7 @@ fn append_match(
     }
 }
 
-pub fn lex(path: &str) -> HashMap<usize, Vec<Tokenized>> {
+pub fn lex(path: &Path) -> HashMap<usize, Vec<Tokenized>> {
     let f = File::open(path).unwrap();
     let reader = BufReader::new(f);
 

@@ -13,6 +13,9 @@ enum Commands {
         #[clap(long = "emit-lexer")]
         #[clap(takes_value = false)]
         emit_lexer: bool,
+        #[clap(long = "emit-llvm")]
+        #[clap(takes_value = false)]
+        emit_llvm: bool,
     },
     #[clap(about = "Compile and run")]
     Run { path: String },
@@ -35,8 +38,9 @@ fn main() {
             path,
             out_dir,
             emit_lexer,
+            emit_llvm,
         }) => {
-            compiler::run_compiler(&path, &out_dir, emit_lexer);
+            compiler::run_compiler(&path, &out_dir, emit_lexer, emit_llvm);
         }
         Some(Commands::Run { path }) => compiler::run_compiler_tmp(&path),
         _ => {}
