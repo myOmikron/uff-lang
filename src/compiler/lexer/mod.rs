@@ -15,6 +15,7 @@ pub enum Token {
     STRING,
     COMMENT,
     SAY,
+    THE_ANSWER_IS,
     UNKNOWN,
 }
 
@@ -222,6 +223,19 @@ pub fn lex(path: &str) -> HashMap<usize, Vec<Tokenized>> {
                 &e.0,
                 &mut boundaries,
             );
+        }
+
+        // the answer is
+        let the_answer_is_captures = reg::RE_THE_ANSWER_IS.captures_iter(&line);
+        for capture in the_answer_is_captures {
+            append_match(
+                &mut line_tokenized,
+                &capture,
+                Token::THE_ANSWER_IS,
+                &line,
+                &e.0,
+                &mut boundaries,
+            )
         }
 
         // identifier

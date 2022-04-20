@@ -5,6 +5,8 @@ pub(crate) static RE_LINE_COMMENT: Lazy<Regex> = Lazy::new(|| Regex::new(r#""(.*
 pub(crate) static RE_STRING: Lazy<Regex> = Lazy::new(|| Regex::new(r#"<<(.*?)>>"#).unwrap());
 pub(crate) static RE_ASSIGN: Lazy<Regex> = Lazy::new(|| Regex::new(r#"(should\s+be)"#).unwrap());
 pub(crate) static RE_SAY: Lazy<Regex> = Lazy::new(|| Regex::new(r#"(say)"#).unwrap());
+pub(crate) static RE_THE_ANSWER_IS: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r#"(the\s+answer\s+is)"#).unwrap());
 pub(crate) static RE_INTEGER: Lazy<Regex> =
     Lazy::new(|| Regex::new(r#"(-?[0-9](?:[0-9]|_?[0-9])*)"#).unwrap());
 pub(crate) static RE_DECIMAL_FLOAT: Lazy<Regex> = Lazy::new(|| {
