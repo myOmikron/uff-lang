@@ -9,7 +9,7 @@ enum Commands {
         path: String,
         #[clap(short = 'o', long = "out")]
         #[clap(default_value_t=String::from("./bin/"))]
-        out_dir: String,
+        out: String,
         #[clap(long = "emit-lexer")]
         #[clap(takes_value = false)]
         emit_lexer: bool,
@@ -36,11 +36,11 @@ fn main() {
     match cli.command {
         Some(Commands::Build {
             path,
-            out_dir,
+            out,
             emit_lexer,
             emit_llvm,
         }) => {
-            compiler::run_compiler(&path, &out_dir, emit_lexer, emit_llvm);
+            compiler::run_compiler(&path, &out, emit_lexer, emit_llvm);
         }
         Some(Commands::Run { path }) => compiler::run_compiler_tmp(&path),
         _ => {}
