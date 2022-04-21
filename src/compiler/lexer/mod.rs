@@ -1,5 +1,4 @@
 use regex::Captures;
-use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -17,6 +16,7 @@ pub enum Token {
     COMMENT,
     SAY,
     THE_ANSWER_IS,
+    EOL,
     UNKNOWN,
 }
 
@@ -117,11 +117,11 @@ fn append_match(
     }
 }
 
-pub fn lex(path: &Path) -> HashMap<usize, Vec<Tokenized>> {
+pub fn lex(path: &Path) -> Vec<Tokenized> {
     let f = File::open(path).unwrap();
     let reader = BufReader::new(f);
 
-    let mut tokenized: HashMap<usize, Vec<Tokenized>> = HashMap::new();
+    let mut tokenized: Vec<Tokenized> = Vec::new();
     let mut boundaries: Vec<(usize, usize)> = Vec::new();
     let mut rem_indices_tok: Vec<usize> = Vec::new();
     let mut line: String;
@@ -289,7 +289,7 @@ pub fn lex(path: &Path) -> HashMap<usize, Vec<Tokenized>> {
         line_tokenized.append(&mut unknown);
         line_tokenized.sort_by(|x, y| x.start.cmp(&y.start));
 
-        tokenized.insert(e.0, line_tokenized);
+        tokenized.extend(line_tokenized);
     }
 
     return tokenized;
