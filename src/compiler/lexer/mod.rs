@@ -289,6 +289,14 @@ pub fn lex(path: &Path) -> Vec<Tokenized> {
         line_tokenized.append(&mut unknown);
         line_tokenized.sort_by(|x, y| x.start.cmp(&y.start));
 
+        line_tokenized.push(Tokenized {
+            token: Token::EOL,
+            value: String::from(""),
+            line: e.0 + 1,
+            start: line.len(),
+            stop: line.len(),
+        });
+
         tokenized.extend(line_tokenized);
     }
 
