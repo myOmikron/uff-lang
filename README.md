@@ -60,6 +60,9 @@ bla struct {
 }
 ```
 
+### Exceptions
+Exceptions are named heart attacks. 
+
 ### Pointer
 
 ### Generics
