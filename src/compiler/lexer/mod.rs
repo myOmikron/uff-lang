@@ -8,16 +8,16 @@ mod reg;
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum Token {
-    ASSIGN = 0,
-    IDENT,
-    INTEGER,
-    FLOAT,
-    STRING,
-    COMMENT,
-    SAY,
-    THE_ANSWER_IS,
+    Assign = 0,
+    Ident,
+    Integer,
+    Float,
+    String,
+    Comment,
+    Say,
+    TheAnswerIs,
     EOL,
-    UNKNOWN,
+    Unknown,
 }
 
 #[derive(Debug)]
@@ -89,13 +89,13 @@ fn append_match(
         line,
         &cap.get(0).unwrap().start(),
         &cap.get(0).unwrap().end(),
-    ) || t == Token::COMMENT
+    ) || t == Token::Comment
     {
         if !check_if_in_bounds(
             &cap.get(0).unwrap().start(),
             &cap.get(0).unwrap().end(),
             &boundaries,
-            t == Token::COMMENT,
+            t == Token::Comment,
         ) {
             vec.push(Tokenized {
                 token: t,
@@ -108,7 +108,7 @@ fn append_match(
                 start: cap.get(0).unwrap().start() + 1,
                 stop: cap.get(0).unwrap().end() + 1,
             });
-            if t != Token::COMMENT {
+            if t != Token::Comment {
                 boundaries.push((cap.get(0).unwrap().start(), cap.get(0).unwrap().end()));
             } else {
                 boundaries.push((cap.get(0).unwrap().start(), cap.get(0).unwrap().end()));
@@ -138,7 +138,7 @@ pub fn lex(path: &Path) -> Vec<Tokenized> {
             append_match(
                 &mut line_tokenized,
                 &cap,
-                Token::STRING,
+                Token::String,
                 &line,
                 &e.0,
                 &mut boundaries,
@@ -151,7 +151,7 @@ pub fn lex(path: &Path) -> Vec<Tokenized> {
         for capture in comment_captures {
             for i in 0..line_tokenized.len() {
                 if line_tokenized[i].line == e.0 + 1
-                    && line_tokenized[i].token == Token::STRING
+                    && line_tokenized[i].token == Token::String
                     && line_tokenized[i].start >= capture.get(0).unwrap().start() + 1
                 {
                     rem_indices_tok.push(i);
@@ -167,7 +167,7 @@ pub fn lex(path: &Path) -> Vec<Tokenized> {
             append_match(
                 &mut line_tokenized,
                 &capture,
-                Token::COMMENT,
+                Token::Comment,
                 &line,
                 &e.0,
                 &mut boundaries,
@@ -180,7 +180,7 @@ pub fn lex(path: &Path) -> Vec<Tokenized> {
             append_match(
                 &mut line_tokenized,
                 &capture,
-                Token::FLOAT,
+                Token::Float,
                 &line,
                 &e.0,
                 &mut boundaries,
@@ -193,7 +193,7 @@ pub fn lex(path: &Path) -> Vec<Tokenized> {
             append_match(
                 &mut line_tokenized,
                 &capture,
-                Token::INTEGER,
+                Token::Integer,
                 &line,
                 &e.0,
                 &mut boundaries,
@@ -206,7 +206,7 @@ pub fn lex(path: &Path) -> Vec<Tokenized> {
             append_match(
                 &mut line_tokenized,
                 &capture,
-                Token::ASSIGN,
+                Token::Assign,
                 &line,
                 &e.0,
                 &mut boundaries,
@@ -219,7 +219,7 @@ pub fn lex(path: &Path) -> Vec<Tokenized> {
             append_match(
                 &mut line_tokenized,
                 &capture,
-                Token::SAY,
+                Token::Say,
                 &line,
                 &e.0,
                 &mut boundaries,
@@ -232,7 +232,7 @@ pub fn lex(path: &Path) -> Vec<Tokenized> {
             append_match(
                 &mut line_tokenized,
                 &capture,
-                Token::THE_ANSWER_IS,
+                Token::TheAnswerIs,
                 &line,
                 &e.0,
                 &mut boundaries,
@@ -245,7 +245,7 @@ pub fn lex(path: &Path) -> Vec<Tokenized> {
             append_match(
                 &mut line_tokenized,
                 &capture,
-                Token::IDENT,
+                Token::Ident,
                 &line,
                 &e.0,
                 &mut boundaries,
@@ -264,7 +264,7 @@ pub fn lex(path: &Path) -> Vec<Tokenized> {
                     line: e.0 + 1,
                     start: last,
                     stop: token.start,
-                    token: Token::UNKNOWN,
+                    token: Token::Unknown,
                     value: String::from(value.trim()),
                 });
             }
@@ -280,7 +280,7 @@ pub fn lex(path: &Path) -> Vec<Tokenized> {
                     line: e.0 + 1,
                     start: last,
                     stop: line.len(),
-                    token: Token::UNKNOWN,
+                    token: Token::Unknown,
                     value: String::from(value.trim()),
                 });
             }

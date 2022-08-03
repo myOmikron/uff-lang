@@ -1,11 +1,7 @@
 use crate::compiler::ast::AST;
-use inkwell::builder::Builder;
-use inkwell::context::Context;
-use inkwell::types::{FunctionType, PointerType};
 use inkwell::values::{FunctionValue, PointerValue};
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::ops::Deref;
 
 pub struct ExprRoot<'ctx> {
     pub statements: Vec<Statement>,

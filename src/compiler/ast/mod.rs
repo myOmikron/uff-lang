@@ -8,7 +8,7 @@ use inkwell::passes::PassManager;
 use inkwell::support::LLVMString;
 use inkwell::targets::TargetMachine;
 use inkwell::types::{FloatType, IntType, PointerType};
-use inkwell::values::{FunctionValue, PointerValue};
+use inkwell::values::FunctionValue;
 use inkwell::AddressSpace;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -24,8 +24,6 @@ pub struct AST<'ctx> {
     module: Module<'ctx>,
     fpm: PassManager<FunctionValue<'ctx>>,
     str_type: PointerType<'ctx>,
-    str_ptr_type: PointerType<'ctx>,
-    i32_type: IntType<'ctx>,
     i64_type: IntType<'ctx>,
     float_type: FloatType<'ctx>,
     printf: FunctionValue<'ctx>,
@@ -52,7 +50,7 @@ fn gen_ast<'ctx>(tokenized: Vec<Tokenized>) -> ExprRoot<'ctx> {
                 }
             }
             tmp.clear();
-        } else if token.token != Token::COMMENT {
+        } else if token.token != Token::Comment {
             tmp.push(token);
         }
     }
@@ -84,11 +82,6 @@ impl<'ctx> AST<'ctx> {
             builder,
             fpm,
             str_type: context.i8_type().ptr_type(AddressSpace::Generic),
-            str_ptr_type: context
-                .i8_type()
-                .ptr_type(AddressSpace::Generic)
-                .ptr_type(AddressSpace::Generic),
-            i32_type: context.i32_type(),
             i64_type: context.i64_type(),
             float_type: context.f64_type(),
             context,

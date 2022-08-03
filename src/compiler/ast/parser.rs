@@ -19,9 +19,9 @@ pub fn parse(vec: &Vec<Tokenized>) -> Result<Statement, String> {
     let first = first_opt.unwrap();
 
     match first.token {
-        Token::COMMENT => return Ok(Statement::None {}),
+        Token::Comment => return Ok(Statement::None {}),
         Token::EOL => return Ok(Statement::None {}),
-        Token::IDENT => {
+        Token::Ident => {
             if vec.len() != 3 {
                 return Err(String::from("Syntax: IDENT should be VALUE"));
             }
@@ -32,7 +32,7 @@ pub fn parse(vec: &Vec<Tokenized>) -> Result<Statement, String> {
             }
 
             let next = next_opt.unwrap();
-            if next.token != Token::ASSIGN {
+            if next.token != Token::Assign {
                 return Err(String::from("Syntax: IDENT should be VALUE"));
             }
 
@@ -42,22 +42,22 @@ pub fn parse(vec: &Vec<Tokenized>) -> Result<Statement, String> {
             }
             let value = value_opt.unwrap();
             match value.token {
-                Token::INTEGER => Ok(Statement::AssignInteger {
+                Token::Integer => Ok(Statement::AssignInteger {
                     ident: String::from(&first.value),
                     value: parse_int(&value.value),
                 }),
-                Token::FLOAT => Ok(Statement::AssignFloat {
+                Token::Float => Ok(Statement::AssignFloat {
                     ident: String::from(&first.value),
                     value: parse_float(&value.value),
                 }),
-                Token::STRING => Ok(Statement::AssignString {
+                Token::String => Ok(Statement::AssignString {
                     ident: String::from(&first.value),
                     value: String::from(&value.value),
                 }),
                 _ => Err(String::from("Value must be one of INTEGER, FLOAT, STRING")),
             }
         }
-        Token::SAY => {
+        Token::Say => {
             let mut expressions = vec![];
 
             let mut next = 1;
@@ -69,16 +69,16 @@ pub fn parse(vec: &Vec<Tokenized>) -> Result<Statement, String> {
                         c = false;
                     }
                     Some(tokenized) => match tokenized.token {
-                        Token::IDENT => {
+                        Token::Ident => {
                             expressions.push(Expression::Ident(tokenized.value.clone()))
                         }
-                        Token::INTEGER => {
+                        Token::Integer => {
                             expressions.push(Expression::Integer(parse_int(&tokenized.value)));
                         }
-                        Token::FLOAT => {
+                        Token::Float => {
                             expressions.push(Expression::Float(parse_float(&tokenized.value)));
                         }
-                        Token::STRING => {
+                        Token::String => {
                             expressions.push(Expression::String(tokenized.value.clone()));
                         }
                         _ => {
@@ -93,14 +93,14 @@ pub fn parse(vec: &Vec<Tokenized>) -> Result<Statement, String> {
             }
             return Ok(Statement::Say { expressions });
         }
-        Token::THE_ANSWER_IS => {
+        Token::TheAnswerIs => {
             let next_opt = vec.get(1);
             if next_opt.is_none() {
                 return Err(String::from("No answer given!"));
             }
 
             let next = next_opt.unwrap();
-            return if next.token == Token::INTEGER {
+            return if next.token == Token::Integer {
                 // THE_ANSWER_IS ( INTEGER / IDENT )
                 if vec.len() > 2 {
                     return Err(String::from("There can only be one answer!"));
@@ -108,7 +108,7 @@ pub fn parse(vec: &Vec<Tokenized>) -> Result<Statement, String> {
 
                 let answer = parse_int(&next.value);
                 Ok(Statement::ExitCode { code: answer })
-            } else if next.token == Token::IDENT {
+            } else if next.token == Token::Ident {
                 Ok(Statement::ExitVar {
                     variable: String::from(&next.value),
                 })
@@ -116,7 +116,7 @@ pub fn parse(vec: &Vec<Tokenized>) -> Result<Statement, String> {
                 Err(String::from("The answer must be an integer!"))
             };
         }
-        Token::UNKNOWN => {
+        Token::Unknown => {
             return Err(format!(
                 "Unknown token: line: {} column: {}: {}",
                 first.line, first.start, first.value
