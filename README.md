@@ -3,10 +3,33 @@
 To add new proposals, open a new issue, describe what and why we should change. 
 Add an example as well as explain the use case to archive.
 
+## How to use
+
+- Don't use it.
+
+But if you really insist:
+
+`uff.uff`
+```uff
+should should be <<be>>
+be should be <<should>>
+say be should
+the answer is 0
+```
+
+```bash
+~> uff build uff.uff
+~> bin/uff
+should be
+```
+
 ## Grammar
 
 ```ebnf
-exit_expr = "the" whitespace "answer" whitespace "is" whitespace integer .
+exit_statement = "the" whitespace "answer" whitespace "is" whitespace ( integer | identifier ) .
+assign_statement = identifier whitespace "should be" whitespace expression .
+expression = ( integer | identifier | string | decimal_float ) .
+string = "<<" /* any character */ ">>" .
 identifier = (unicode_symobls | unicode_letter) { unicode_symobls | unicode_letter | unicode_digit } .
 imaginary = ( decimal_float | integer ) "i" .
 decimal_float = integer "." digits [ "e" integer ] .

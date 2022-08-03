@@ -1,25 +1,97 @@
-use crate::compiler::ast::definitions::Expression;
+use crate::compiler::ast::definitions::{Expression, Statement};
 use crate::compiler::lexer::{Token, Tokenized};
 
-pub fn parse(vec: &Vec<Tokenized>) -> Result<Expression, String> {
+fn parse_int(value: &str) -> i64 {
+    value.replace("_", "").parse::<i64>().unwrap()
+}
+
+fn parse_float(value: &str) -> f64 {
+    value.replace("_", "").parse::<f64>().unwrap()
+}
+
+pub fn parse(vec: &Vec<Tokenized>) -> Result<Statement, String> {
     let first_opt = vec.get(0);
 
     if first_opt.is_none() {
-        return Ok(Expression::None {});
+        return Ok(Statement::None {});
     }
 
     let first = first_opt.unwrap();
 
     match first.token {
-        Token::COMMENT => return Ok(Expression::None {}),
-        Token::EOL => return Ok(Expression::None {}),
+        Token::COMMENT => return Ok(Statement::None {}),
+        Token::EOL => return Ok(Statement::None {}),
         Token::IDENT => {
-            return Ok(Expression::None {});
-            unimplemented!()
+            if vec.len() != 3 {
+                return Err(String::from("Syntax: IDENT should be VALUE"));
+            }
+
+            let next_opt = vec.get(1);
+            if next_opt.is_none() {
+                return Err(String::from("Don't know what to do with this!"));
+            }
+
+            let next = next_opt.unwrap();
+            if next.token != Token::ASSIGN {
+                return Err(String::from("Syntax: IDENT should be VALUE"));
+            }
+
+            let value_opt = vec.get(2);
+            if value_opt.is_none() {
+                return Err(String::from("Syntax: IDENT should be VALUE"));
+            }
+            let value = value_opt.unwrap();
+            match value.token {
+                Token::INTEGER => Ok(Statement::AssignInteger {
+                    ident: String::from(&first.value),
+                    value: parse_int(&value.value),
+                }),
+                Token::FLOAT => Ok(Statement::AssignFloat {
+                    ident: String::from(&first.value),
+                    value: parse_float(&value.value),
+                }),
+                Token::STRING => Ok(Statement::AssignString {
+                    ident: String::from(&first.value),
+                    value: String::from(&value.value),
+                }),
+                _ => Err(String::from("Value must be one of INTEGER, FLOAT, STRING")),
+            }
         }
         Token::SAY => {
-            return Ok(Expression::None {});
-            unimplemented!()
+            let mut expressions = vec![];
+
+            let mut next = 1;
+            let mut c = true;
+            while c {
+                let value_opt = vec.get(next);
+                match value_opt {
+                    None => {
+                        c = false;
+                    }
+                    Some(tokenized) => match tokenized.token {
+                        Token::IDENT => {
+                            expressions.push(Expression::Ident(tokenized.value.clone()))
+                        }
+                        Token::INTEGER => {
+                            expressions.push(Expression::Integer(parse_int(&tokenized.value)));
+                        }
+                        Token::FLOAT => {
+                            expressions.push(Expression::Float(parse_float(&tokenized.value)));
+                        }
+                        Token::STRING => {
+                            expressions.push(Expression::String(tokenized.value.clone()));
+                        }
+                        _ => {
+                            return Err(format!(
+                                "{:?} not allowed here: {}:{}",
+                                tokenized.token, tokenized.line, tokenized.start
+                            ))
+                        }
+                    },
+                }
+                next += 1;
+            }
+            return Ok(Statement::Say { expressions });
         }
         Token::THE_ANSWER_IS => {
             let next_opt = vec.get(1);
@@ -29,14 +101,15 @@ pub fn parse(vec: &Vec<Tokenized>) -> Result<Expression, String> {
 
             let next = next_opt.unwrap();
             return if next.token == Token::INTEGER {
+                // THE_ANSWER_IS ( INTEGER / IDENT )
                 if vec.len() > 2 {
                     return Err(String::from("There can only be one answer!"));
                 }
 
-                let answer = next.value.parse::<i64>().unwrap();
-                Ok(Expression::ExitCode { code: answer })
+                let answer = parse_int(&next.value);
+                Ok(Statement::ExitCode { code: answer })
             } else if next.token == Token::IDENT {
-                Ok(Expression::ExitVar {
+                Ok(Statement::ExitVar {
                     variable: String::from(&next.value),
                 })
             } else {

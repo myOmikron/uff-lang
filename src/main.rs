@@ -2,7 +2,7 @@ use clap::{Parser, Subcommand};
 
 mod compiler;
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 enum Commands {
     #[clap(about = "Just run the compiler")]
     Build {
@@ -16,6 +16,9 @@ enum Commands {
         #[clap(long = "emit-llvm")]
         #[clap(takes_value = false)]
         emit_llvm: bool,
+        #[clap(short = 'U', long = "unoptimization-level")]
+        #[clap(default_value = "0")]
+        unoptimization_level: u8,
     },
     #[clap(about = "Compile and run")]
     Run { path: String },
@@ -39,8 +42,9 @@ fn main() {
             out,
             emit_lexer,
             emit_llvm,
+            unoptimization_level,
         }) => {
-            compiler::run_compiler(&path, &out, emit_lexer, emit_llvm);
+            compiler::run_compiler(&path, &out, emit_lexer, emit_llvm, unoptimization_level);
         }
         Some(Commands::Run { path }) => compiler::run_compiler_tmp(&path),
         _ => {}
