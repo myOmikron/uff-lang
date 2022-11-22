@@ -11,7 +11,7 @@ authors = ["myOmikron <git@omikron.dev>"]
 # cli parser
 clap = { version = "4.0.25"}
 # llvm bindings
-inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "master"}
+inkwell = { version = "0.1.0-beta.4" }
 # Create safe temporary files
 tempfile = { version = "~3.3" }
 # Regular expressions
