@@ -1,52 +1,57 @@
-use clap::{Parser, Subcommand};
+use clap::{ArgAction, Parser, Subcommand};
 
 mod compiler;
+mod regex;
 
 #[derive(Subcommand, Debug)]
 enum Commands {
     #[clap(about = "Just run the compiler")]
     Build {
+        #[clap(help = "Path to the uff-lang file")]
         path: String,
-        #[clap(short = 'o', long = "out")]
+        #[clap(short = 'o', long = "out-dir")]
         #[clap(default_value_t=String::from("./bin/"))]
-        out: String,
+        #[clap(help = "Output path.")]
+        out_dir: String,
         #[clap(long = "emit-lexer")]
-        #[clap(takes_value = false)]
+        #[clap(action = ArgAction::SetTrue)]
+        #[clap(help = "If set, the generated lexed tokens are included in the output")]
         emit_lexer: bool,
         #[clap(long = "emit-llvm")]
-        #[clap(takes_value = false)]
+        #[clap(action = ArgAction::SetTrue)]
+        #[clap(help = "If set, the generated LLVM IR is added to the output")]
         emit_llvm: bool,
         #[clap(short = 'U', long = "unoptimization-level")]
         #[clap(default_value = "0")]
+        #[clap(help = "Increase the value for more operations in the output!")]
         unoptimization_level: u8,
     },
     #[clap(about = "Compile and run")]
-    Run { path: String },
+    Run {
+        #[clap(help = "Path to the uff-lang file")]
+        path: String,
+        #[clap(short = 'U', long = "unoptimization-level")]
+        #[clap(default_value = "0")]
+        #[clap(help = "Increase the value for more operations in the output!")]
+        unoptimization_level: u8,
+    },
 }
 
 #[derive(Parser)]
 #[clap(version = "0.1.0", about = "Compiler for uff-lang", long_about = None)]
 #[clap(arg_required_else_help = true)]
 #[clap(name = "uff")]
-struct CLI {
+struct Cli {
     #[clap(subcommand)]
-    command: Option<Commands>,
+    command: Commands,
 }
 
-fn main() {
-    let cli: CLI = CLI::parse();
+#[tokio::main]
+async fn main() {
+    let cli: Cli = Cli::parse();
 
     match cli.command {
-        Some(Commands::Build {
-            path,
-            out,
-            emit_lexer,
-            emit_llvm,
-            unoptimization_level,
-        }) => {
-            compiler::run_compiler(&path, &out, emit_lexer, emit_llvm, unoptimization_level);
-        }
-        Some(Commands::Run { path }) => compiler::run_compiler_tmp(&path),
-        _ => {}
+        Commands::Build { .. } => {}
+        Commands::Run { .. } => {}
     }
 }

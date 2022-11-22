@@ -1,32 +1,7 @@
-use crate::compiler::ast::AST;
-use crate::compiler::lexer::Token;
-use inkwell::context::Context;
-use inkwell::passes::PassManager;
-use std::fs::create_dir_all;
-use std::io::Write;
-use std::path::Path;
-use std::process::{Command, Stdio};
-use tempfile::NamedTempFile;
-
-mod ast;
-mod lexer;
-
-fn check_file_existence(path: &Path) -> bool {
-    if !path.exists() {
-        println!("{} does not exist", path.to_str().unwrap());
-        return false;
-    }
-    if !path.is_file() {
-        println!("{} is not a file", path.to_str().unwrap());
-        return false;
-    }
-    return true;
-}
-
+/*
 fn run_clang(o_file: &NamedTempFile, output_path: &Path) {
     let clang = which::which("clang").expect("clang was not found");
     let mut cmd = Command::new(clang)
-        .arg("-O3")
         .arg("-o")
         .arg(output_path.to_str().unwrap())
         .arg("-lc")
@@ -108,15 +83,9 @@ pub fn run_compiler(
     }
 
     let mut tmp = NamedTempFile::new().unwrap();
-    tmp.write_all(&ll.to_bytes()).expect("Could not write ll");
+    tmp.write_all(ll.to_bytes()).expect("Could not write ll");
     run_clang(&tmp, &out_path);
 
     tmp.close().expect("Temporary file could not be deleted");
 }
-
-pub fn run_compiler_tmp(path: &str) {
-    let path = Path::new(path);
-    if !check_file_existence(path) {
-        return;
-    }
-}
+*/

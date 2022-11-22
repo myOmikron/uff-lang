@@ -91,6 +91,13 @@ Exceptions are named heart attacks.
 ### Generics
 `tbd` as keyword
 
+### CAT Mode
+
+The `CAT` mode is enabled by default.
+The program behaves like a cat. It has multiple lifes.
+
+How many lifes your program has, depends on the target architecture.
+
 ### Required keywords
 These should be valid keywords, but I don't have an idea, what to use them for:
 
